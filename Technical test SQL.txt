@@ -1,0 +1,34 @@
+WITH report_monthly_orders_product_agg AS (
+  SELECT 
+    EXTRACT(YEAR FROM P.created_at) AS Tahun,
+    EXTRACT(MONTH FROM P.created_at) AS Bulan,
+    Q.name AS Nama_Produk,
+    SUM(P.num_of_item) AS Total_Penjualan_Tertinggi
+  FROM bigquery-public-data.thelook_ecommerce.orders P
+  JOIN bigquery-public-data.thelook_ecommerce.order_items R ON P.order_id = R.order_id
+  JOIN bigquery-public-data.thelook_ecommerce.products Q ON R.product_id = Q.id
+  WHERE P.status = 'Complete'
+  GROUP BY 1,2,3
+  ORDER BY 1,2 ASC, 4 DESC
+)
+
+SELECT Tahun, Bulan, Nama_Produk, Total_Penjualan_Tertinggi
+FROM report_monthly_orders_product_agg
+
+
+Penjelasan:
+WITH report_monthly_orders_product_agg: membuatfungsi CTE untuk table sementara bernama report_monthly_orders_product_agg
+EXTRACT(YEAR FROM P.created_at) AS Tahun &
+EXTRACT(MONTH FROM P.created_at) AS Bulan:query tersebut berfungsi untuk mengambil bagian tahun dan bulan saja dan kolom created_at
+Q.name AS Nama_Produk: query ini maksudnya mengambil nama produk yang diberi nama AS(alias) Nama_Produk
+SUM(P.num_of_item) AS Total_Penjualan_Tertinggi: query ini maksudnya adalah untuk menjumlahkan semua item pembelian tiap produk yang kemudian diberi nama AS(alias) Nama Produk
+JOIN bigquery-public-data.thelook_ecommerce.order_items R ON P.order_id = R.order_id
+JOIN bigquery-public-data.thelook_ecommerce.products Q ON R.product_id = Q.id
+maksud dari 2 baris query diatas adalah untuk menggabungkan table saru dengan table lainnya menggunakan primary key dan foreign key
+WHERE P.status = 'Complete': query ini maksudnya adalah untuk memfilter data agar yang ditampilkan adalah data dengan status complete.
+GROUP BY 1,2,3: query ini maksudnya adalah untuk mengelompokkan kolom data 1,2,3 yaitu kolom tahun,bulan, dan nama produk
+ORDER BY 1,2 ASC, 4 DESC: query ini bertujuan untuk mengurutkan kolom data yakni, kolom data 1(tahun) dan 2(bulan) secara ascending yaitu dari kecil ke besar. kolom 4 diurutkan secara descending yaitu dari besar ke kecil.
+SELECT Tahun, Bulan, Nama_Produk, Total_Penjualan_Tertinggi
+FROM report_monthly_orders_product_agg:
+maksud query diatas adalah untuk memanggil data tahun, bulan, nama_produk, dan total_penjualan_tertinggi dari table temporary yang telah dibuat sebelumnya dengan nama report_monthly_orders_product_agg
+ 
